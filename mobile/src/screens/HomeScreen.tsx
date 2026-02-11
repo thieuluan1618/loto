@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,8 +11,11 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import ConfettiCannon from "react-native-confetti-cannon";
+import { Audio } from "expo-av";
 import { scanTicket, ScanResult, Block } from "../api/client";
 import TicketCard from "../components/TicketCard";
+
+const winSound = require("../../assets/sounds/win.mp3");
 
 export default function HomeScreen() {
   const [imageUri, setImageUri] = useState<string | null>(null);
@@ -21,6 +24,21 @@ export default function HomeScreen() {
   const [matched, setMatched] = useState<Set<number>>(new Set());
   const [showConfetti, setShowConfetti] = useState(false);
   const confettiRef = useRef<ConfettiCannon | null>(null);
+  const soundRef = useRef<Audio.Sound | null>(null);
+
+  useEffect(() => {
+    return () => {
+      soundRef.current?.unloadAsync();
+    };
+  }, []);
+
+  const playWinSound = useCallback(async () => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(winSound);
+      soundRef.current = sound;
+      await sound.playAsync();
+    } catch {}
+  }, []);
 
   const scanned = result && result.blocks && result.blocks.length > 0;
 
@@ -105,6 +123,7 @@ export default function HomeScreen() {
       const hasWin = checkRowWin(next);
       if (hasWin && !hadWin) {
         setShowConfetti(true);
+        playWinSound();
         setTimeout(() => setShowConfetti(false), 3000);
       }
 

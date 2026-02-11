@@ -1,9 +1,11 @@
 import { Platform } from "react-native";
 
+const DEV_HOST = "192.168.2.195";
+
 const getBaseUrl = () => {
   if (!__DEV__) return "https://your-production-url.com/api/v1";
-  if (Platform.OS === "android") return "http://10.0.2.2:8080/api/v1";
-  return "http://localhost:8080/api/v1";
+  if (Platform.OS === "web") return "http://localhost:8080/api/v1";
+  return `http://${DEV_HOST}:8080/api/v1`;
 };
 
 const API_URL = getBaseUrl();
@@ -44,10 +46,14 @@ export async function scanTicket(imageUri: string): Promise<ScanResult> {
     } as unknown as Blob);
   }
 
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 60000);
+
   const response = await fetch(`${API_URL}/scan-ticket`, {
     method: "POST",
     body: formData,
-  });
+    signal: controller.signal,
+  }).finally(() => clearTimeout(timeout));
 
   if (!response.ok) {
     const err = await response.json();
