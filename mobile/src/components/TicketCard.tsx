@@ -1,9 +1,10 @@
-import { View, Text, TouchableOpacity, useWindowDimensions } from "react-native";
+import { View, Text, Pressable, useWindowDimensions } from "react-native";
 import { Block } from "../api/client";
 import { TicketColors } from "../hooks/useImageColors";
 
 const COLS = 9;
 const GAP = 2;
+const CARD_CHROME = 200; // approximate vertical space for header, footer, labels, margins
 
 function buildGrid(row: number[]): (number | null)[] {
   const cells: (number | null)[] = Array(COLS).fill(null);
@@ -36,38 +37,34 @@ function TicketRow({
         const isMatched = n !== null && matched.has(n);
         if (n !== null) {
           return (
-            <TouchableOpacity
+            <Pressable
               key={i}
-              activeOpacity={0.6}
               onPress={() => onToggle(n)}
-              className="items-center justify-center rounded"
+              className="items-center justify-center"
               style={{
                 width: cellWidth,
                 height: cellHeight,
-                backgroundColor: isMatched ? "#B71C1C" : "#fff",
-                borderWidth: 1,
-                borderColor: isMatched ? "#8B0000" : "#DAA520",
+                backgroundColor: isMatched ? "#E53935" : "#fff",
+                borderWidth: 2,
+                borderColor: isMatched ? "#7f1d1d" : "#E65100",
+                borderRadius: 6,
               }}
             >
               <Text
-                className="font-condensed text-xl"
-                style={{ color: isMatched ? "#fff" : "#333" }}
+                className="font-condensed"
+                style={{ color: isMatched ? "#fff" : "#333", fontSize: Math.min(18, cellHeight * 0.45) }}
               >
                 {n}
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           );
         }
         return (
           <View
             key={i}
-            className="rounded"
             style={{
               width: cellWidth,
               height: cellHeight,
-              backgroundColor: colors.background,
-              borderWidth: 1,
-              borderColor: "#DAA520",
             }}
           />
         );
@@ -94,9 +91,9 @@ function TicketBlock({
   colors: TicketColors;
 }) {
   return (
-    <View className="mb-3">
-      <Text className="mb-1 text-xs font-bold text-tet-red">
-        Tờ {index + 1}
+    <View className="mb-1">
+      <Text className="mb-0.5 text-xs font-bold text-tet-red">
+        # {index + 1}
       </Text>
       <TicketRow row={block.row1} cellWidth={cellWidth} cellHeight={cellHeight} matched={matched} onToggle={onToggle} colors={colors} />
       <TicketRow row={block.row2} cellWidth={cellWidth} cellHeight={cellHeight} matched={matched} onToggle={onToggle} colors={colors} />
@@ -120,25 +117,30 @@ export default function TicketCard({
   onToggle: (n: number) => void;
   colors: TicketColors;
 }) {
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
+  const maxWidth = 448;
+  const containerWidth = Math.min(width, maxWidth);
   const cardPadding = 16;
   const screenPadding = 20;
   const cellWidth = Math.floor(
-    (width - screenPadding * 2 - cardPadding * 2 - GAP * (COLS - 1)) / COLS
+    (containerWidth - screenPadding * 2 - cardPadding * 2 - GAP * (COLS - 1)) / COLS
   );
-  const cellHeight = Math.floor(cellWidth * 1.4);
+  const totalRows = blocks.length * 3;
+  const availableHeight = height - CARD_CHROME;
+  const maxCellHeight = Math.floor((availableHeight - GAP * totalRows) / totalRows);
+  const cellHeight = Math.min(Math.floor(cellWidth * 1.2), maxCellHeight);
 
   return (
     <View
-      className="w-full rounded-2xl bg-tet-cream p-4 shadow-md"
-      style={{ borderWidth: 3, borderColor: colors.accent }}
+      className="w-full rounded-2xl bg-tet-cream p-3"
+      style={{ borderWidth: 3, borderColor: "#E65100", borderRadius: 16 }}
     >
       <View
-        className="mb-3 flex-row items-center justify-between pb-2"
-        style={{ borderBottomWidth: 2, borderBottomColor: "#DAA520" }}
+        className="mb-2 flex-row items-center justify-between pb-1.5"
+        style={{ borderBottomWidth: 2, borderBottomColor: "#FFB74D" }}
       >
         <Text
-          className="font-condensed text-2xl tracking-wider"
+          className="font-condensed text-xl tracking-wider"
           style={{ color: colors.primary }}
         >
           🧧 LÔ TÔ 🧧
@@ -165,7 +167,7 @@ export default function TicketCard({
 
       <View
         className="mt-1 items-center pt-2"
-        style={{ borderTopWidth: 2, borderTopColor: "#DAA520" }}
+        style={{ borderTopWidth: 2, borderTopColor: "#FFB74D" }}
       >
         <Text className="text-sm font-semibold text-tet-red">
           {matched.size > 0

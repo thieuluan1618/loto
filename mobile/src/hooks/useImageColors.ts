@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Platform } from "react-native";
-import { getColors, ImageColorsResult } from "react-native-image-colors";
 
 export interface TicketColors {
   primary: string;
@@ -14,7 +13,14 @@ const DEFAULT_COLORS: TicketColors = {
   background: "#FFF8F0",
 };
 
-function extractColors(result: ImageColorsResult): TicketColors {
+let getColors: typeof import("react-native-image-colors").getColors | null = null;
+try {
+  getColors = require("react-native-image-colors").getColors;
+} catch {
+  // native module not available (Expo Go)
+}
+
+function extractColors(result: { platform: string; [key: string]: string }): TicketColors {
   if (result.platform === "android") {
     return {
       primary: result.vibrant || result.dominant || DEFAULT_COLORS.primary,
@@ -43,7 +49,7 @@ export function useImageColors(imageUri: string | null): TicketColors {
   const [colors, setColors] = useState<TicketColors>(DEFAULT_COLORS);
 
   useEffect(() => {
-    if (!imageUri) {
+    if (!imageUri || !getColors) {
       setColors(DEFAULT_COLORS);
       return;
     }
@@ -54,7 +60,7 @@ export function useImageColors(imageUri: string | null): TicketColors {
       key: imageUri,
       quality: Platform.OS === "web" ? "low" : undefined,
     }).then((result) => {
-      setColors(extractColors(result));
+      setColors(extractColors(result as unknown as { platform: string; [key: string]: string }));
     }).catch(() => {
       setColors(DEFAULT_COLORS);
     });

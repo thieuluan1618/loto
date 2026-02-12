@@ -9,12 +9,12 @@ module.exports = {
     extend: {
       colors: {
         tet: {
-          red: "#B71C1C",
-          "red-dark": "#8B0000",
-          gold: "#FFD700",
-          "gold-dark": "#DAA520",
+          red: "#FFAB91",
+          "red-dark": "#FF8A65",
+          gold: "#FFCC80",
+          "gold-dark": "#FFB74D",
           cream: "#FFF8E1",
-          pink: "#FFCDD2",
+          pink: "#F48FB1",
         },
       },
       fontFamily: {
