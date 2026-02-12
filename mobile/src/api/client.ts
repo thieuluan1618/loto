@@ -47,7 +47,7 @@ export async function scanTicket(imageUri: string): Promise<ScanResult> {
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 60000);
+  const timeout = setTimeout(() => controller.abort(), 90000);
 
   const response = await fetch(`${API_URL}/scan-ticket`, {
     method: "POST",

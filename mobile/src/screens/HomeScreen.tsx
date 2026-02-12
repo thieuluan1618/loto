@@ -20,6 +20,7 @@ const winSound = require("../../assets/sounds/win.mp3");
 export default function HomeScreen() {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [scanStage, setScanStage] = useState(0);
   const [result, setResult] = useState<ScanResult | null>(null);
   const [matched, setMatched] = useState<Set<number>>(new Set());
   const [showConfetti, setShowConfetti] = useState(false);
@@ -94,11 +95,23 @@ export default function HomeScreen() {
     }
   };
 
+  const scanStages = [
+    "Đang phân tích ảnh (OCR)...",
+    "Đang xác minh bằng AI...",
+    "Đang đối chiếu kết quả...",
+  ];
+
   const handleScan = async () => {
     if (!imageUri) return;
 
     setLoading(true);
     setResult(null);
+    setScanStage(0);
+
+    const stageTimers = [
+      setTimeout(() => setScanStage(1), 4000),
+      setTimeout(() => setScanStage(2), 14000),
+    ];
 
     try {
       const res = await scanTicket(imageUri);
@@ -106,7 +119,9 @@ export default function HomeScreen() {
     } catch (err) {
       Alert.alert("Lỗi", err instanceof Error ? err.message : "Không thể quét vé số");
     } finally {
+      stageTimers.forEach(clearTimeout);
       setLoading(false);
+      setScanStage(0);
     }
   };
 
@@ -168,6 +183,18 @@ export default function HomeScreen() {
                   <Text style={styles.scanButtonText}>Quét vé số</Text>
                 )}
               </TouchableOpacity>
+              {loading && (
+                <View style={styles.progressContainer}>
+                  {scanStages.map((stage, i) => (
+                    <View key={i} style={styles.progressStep}>
+                      <View style={[styles.progressDot, i <= scanStage && styles.progressDotActive, i < scanStage && styles.progressDotDone]} />
+                      <Text style={[styles.progressText, i <= scanStage && styles.progressTextActive]}>
+                        {stage}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              )}
             </View>
           )}
         </>
@@ -303,5 +330,36 @@ const styles = StyleSheet.create({
     color: "#888",
     fontSize: 14,
     textDecorationLine: "underline",
+  },
+  progressContainer: {
+    marginTop: 20,
+    alignSelf: "stretch",
+    paddingHorizontal: 20,
+    gap: 10,
+  },
+  progressStep: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  progressDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#ddd",
+  },
+  progressDotActive: {
+    backgroundColor: "#2196F3",
+  },
+  progressDotDone: {
+    backgroundColor: "#4CAF50",
+  },
+  progressText: {
+    fontSize: 13,
+    color: "#bbb",
+  },
+  progressTextActive: {
+    color: "#333",
+    fontWeight: "600",
   },
 });

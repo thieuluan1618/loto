@@ -37,6 +37,23 @@ type GPTScanResponse struct {
 	Notes       string  `json:"notes"`
 }
 
+type OCRToken struct {
+	Text       string  `json:"text"`
+	Confidence float64 `json:"confidence"`
+	X          int     `json:"x"`
+	Y          int     `json:"y"`
+	Width      int     `json:"width"`
+	Height     int     `json:"height"`
+}
+
+type OCRScanResult struct {
+	FullText   string     `json:"full_text"`
+	Tokens     []OCRToken `json:"tokens"`
+	Numbers    []int      `json:"numbers"`
+	Confidence float64    `json:"confidence"`
+	Provider   string     `json:"provider"`
+}
+
 type ScanRequest struct {
 	UserID string `form:"user_id"`
 }

@@ -47,3 +47,25 @@ func ValidateFileType(contentType string) error {
 		return fmt.Errorf("unsupported file type: %s (only jpg/png allowed)", contentType)
 	}
 }
+
+func ValidateLOTOGrid(blocks []model.Block) error {
+	if len(blocks) != 3 {
+		return fmt.Errorf("expected 3 blocks, got %d", len(blocks))
+	}
+
+	for i, block := range blocks {
+		rows := [][]int{block.Row1, block.Row2, block.Row3}
+		for j, row := range rows {
+			if len(row) > 5 {
+				return fmt.Errorf("block %d row %d: expected at most 5 numbers, got %d", i+1, j+1, len(row))
+			}
+			for _, n := range row {
+				if n < 1 || n > 90 {
+					return fmt.Errorf("block %d row %d: number %d out of range 1-90", i+1, j+1, n)
+				}
+			}
+		}
+	}
+
+	return nil
+}

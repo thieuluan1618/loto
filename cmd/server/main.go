@@ -19,12 +19,18 @@ import (
 	"loto/internal/ai"
 	"loto/internal/config"
 	"loto/internal/handler"
+	"loto/internal/ocr"
 	"loto/internal/repository"
+	"loto/internal/scan"
 	"loto/internal/service"
 )
 
 func main() {
-	logger, _ := zap.NewProduction()
+	logCfg := zap.NewProductionConfig()
+	logCfg.OutputPaths = []string{"stdout", "logs/server.log"}
+	logCfg.ErrorOutputPaths = []string{"stderr", "logs/server.log"}
+	os.MkdirAll("logs", 0o755)
+	logger, _ := logCfg.Build()
 	defer logger.Sync()
 
 	_ = godotenv.Load()
@@ -34,12 +40,28 @@ func main() {
 		logger.Fatal("failed to load config", zap.Error(err))
 	}
 
-	if cfg.OpenAI.APIKey == "" {
-		logger.Fatal("OPENAI_API_KEY is required")
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	var aiClient ai.Scanner
+	switch cfg.AIProvider {
+	case "google", "gemini":
+		if cfg.GoogleAI.APIKey == "" {
+			logger.Fatal("GOOGLE_API_KEY is required when AI_PROVIDER=google")
+		}
+		geminiClient, err := ai.NewGeminiClient(ctx, cfg.GoogleAI, logger)
+		if err != nil {
+			logger.Fatal("failed to create Gemini client", zap.Error(err))
+		}
+		aiClient = geminiClient
+		logger.Info("using Google Gemini AI provider", zap.String("model", cfg.GoogleAI.Model))
+	default:
+		if cfg.OpenAI.APIKey == "" {
+			logger.Fatal("OPENAI_API_KEY is required when AI_PROVIDER=openai")
+		}
+		aiClient = ai.NewClient(cfg.OpenAI, logger)
+		logger.Info("using OpenAI provider", zap.String("model", cfg.OpenAI.Model))
+	}
 
 	var repo *repository.Repository
 	pool, err := pgxpool.New(ctx, cfg.Database.DSN())
@@ -54,8 +76,22 @@ func main() {
 		defer pool.Close()
 	}
 
-	aiClient := ai.NewClient(cfg.OpenAI, logger)
+	var hybridScanner *scan.HybridScanner
+	if cfg.Vision.Enabled {
+		ocrScanner, err := ocr.NewGoogleVisionScanner(cfg.Vision.CredentialsFile, logger)
+		if err != nil {
+			logger.Warn("Google Vision not available, using AI-only mode", zap.Error(err))
+		} else {
+			hybridScanner = scan.NewHybridScanner(ocrScanner, aiClient, logger)
+			logger.Info("hybrid scanner enabled (OCR + AI)")
+			defer ocrScanner.Close()
+		}
+	}
+
 	svc := service.New(repo, aiClient, logger)
+	if hybridScanner != nil {
+		svc.SetHybridScanner(hybridScanner)
+	}
 	h := handler.New(svc, logger)
 
 	router := setupRouter(h, cfg.Server.MaxUploadSizeMB)

@@ -13,16 +13,22 @@ import (
 	"loto/internal/ai"
 	"loto/internal/model"
 	"loto/internal/repository"
+	"loto/internal/scan"
 	"loto/internal/validator"
 )
 
 type Service struct {
 	repo   *repository.Repository
-	ai     *ai.Client
+	ai     ai.Scanner
+	hybrid *scan.HybridScanner
 	logger *zap.Logger
 }
 
-func New(repo *repository.Repository, aiClient *ai.Client, logger *zap.Logger) *Service {
+func (s *Service) SetHybridScanner(hs *scan.HybridScanner) {
+	s.hybrid = hs
+}
+
+func New(repo *repository.Repository, aiClient ai.Scanner, logger *zap.Logger) *Service {
 	return &Service{
 		repo:   repo,
 		ai:     aiClient,
@@ -57,7 +63,12 @@ func (s *Service) ScanTicket(ctx context.Context, file multipart.File, header *m
 
 	b64 := base64.StdEncoding.EncodeToString(data)
 
-	gptResp, err := s.ai.ScanTicket(ctx, b64, contentType)
+	var gptResp *model.GPTScanResponse
+	if s.hybrid != nil {
+		gptResp, err = s.hybrid.Scan(ctx, data, b64, contentType)
+	} else {
+		gptResp, err = s.ai.ScanTicket(ctx, b64, contentType)
+	}
 	if err != nil {
 		return nil, fmt.Errorf("AI scan failed: %w", err)
 	}
