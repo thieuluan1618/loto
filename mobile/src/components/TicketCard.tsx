@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, useWindowDimensions } from "react-native";
+import { View, Text, TouchableOpacity, useWindowDimensions } from "react-native";
 import { Block } from "../api/client";
 import { TicketColors } from "../hooks/useImageColors";
 
@@ -31,7 +31,7 @@ function TicketRow({
 }) {
   const cells = buildGrid(row);
   return (
-    <View style={styles.row}>
+    <View className="flex-row" style={{ gap: GAP, marginBottom: GAP }}>
       {cells.map((n, i) => {
         const isMatched = n !== null && matched.has(n);
         if (n !== null) {
@@ -40,14 +40,19 @@ function TicketRow({
               key={i}
               activeOpacity={0.6}
               onPress={() => onToggle(n)}
-              style={[
-                styles.cell,
-                { width: cellWidth, height: cellHeight },
-                styles.cellFilled,
-                isMatched && styles.cellMatched,
-              ]}
+              className="items-center justify-center rounded"
+              style={{
+                width: cellWidth,
+                height: cellHeight,
+                backgroundColor: isMatched ? "#B71C1C" : "#fff",
+                borderWidth: 1,
+                borderColor: isMatched ? "#8B0000" : "#DAA520",
+              }}
             >
-              <Text style={[styles.cellTextFilled, isMatched && styles.cellTextMatched]}>
+              <Text
+                className="font-condensed text-xl"
+                style={{ color: isMatched ? "#fff" : "#333" }}
+              >
                 {n}
               </Text>
             </TouchableOpacity>
@@ -56,7 +61,14 @@ function TicketRow({
         return (
           <View
             key={i}
-            style={[styles.cell, { width: cellWidth, height: cellHeight }, { backgroundColor: colors.background }]}
+            className="rounded"
+            style={{
+              width: cellWidth,
+              height: cellHeight,
+              backgroundColor: colors.background,
+              borderWidth: 1,
+              borderColor: "#DAA520",
+            }}
           />
         );
       })}
@@ -82,8 +94,10 @@ function TicketBlock({
   colors: TicketColors;
 }) {
   return (
-    <View style={styles.block}>
-      <Text style={styles.blockLabel}>Tờ {index + 1}</Text>
+    <View className="mb-3">
+      <Text className="mb-1 text-xs font-bold text-tet-red">
+        Tờ {index + 1}
+      </Text>
       <TicketRow row={block.row1} cellWidth={cellWidth} cellHeight={cellHeight} matched={matched} onToggle={onToggle} colors={colors} />
       <TicketRow row={block.row2} cellWidth={cellWidth} cellHeight={cellHeight} matched={matched} onToggle={onToggle} colors={colors} />
       <TicketRow row={block.row3} cellWidth={cellWidth} cellHeight={cellHeight} matched={matched} onToggle={onToggle} colors={colors} />
@@ -115,10 +129,25 @@ export default function TicketCard({
   const cellHeight = Math.floor(cellWidth * 1.4);
 
   return (
-    <View style={[styles.card, { borderColor: colors.accent }]}>
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.primary }]}>LÔ TÔ</Text>
-        {ticketId ? <Text style={styles.ticketId}>#{ticketId}</Text> : null}
+    <View
+      className="w-full rounded-2xl bg-tet-cream p-4 shadow-md"
+      style={{ borderWidth: 3, borderColor: colors.accent }}
+    >
+      <View
+        className="mb-3 flex-row items-center justify-between pb-2"
+        style={{ borderBottomWidth: 2, borderBottomColor: "#DAA520" }}
+      >
+        <Text
+          className="font-condensed text-2xl tracking-wider"
+          style={{ color: colors.primary }}
+        >
+          🧧 LÔ TÔ 🧧
+        </Text>
+        {ticketId ? (
+          <Text className="text-sm font-semibold text-gray-500">
+            #{ticketId}
+          </Text>
+        ) : null}
       </View>
 
       {blocks.map((block, i) => (
@@ -134,96 +163,16 @@ export default function TicketCard({
         />
       ))}
 
-      <View style={styles.footer}>
-        <Text style={styles.matchCount}>
-          {matched.size > 0 ? `Đã đánh: ${matched.size} số` : "Nhấn vào số để đánh"}
+      <View
+        className="mt-1 items-center pt-2"
+        style={{ borderTopWidth: 2, borderTopColor: "#DAA520" }}
+      >
+        <Text className="text-sm font-semibold text-tet-red">
+          {matched.size > 0
+            ? `🎯 Đã đánh: ${matched.size} số`
+            : "Nhấn vào số để đánh 🎲"}
         </Text>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 16,
-    width: "100%",
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    borderWidth: 2,
-    borderColor: "#F44336",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-    paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#D32F2F",
-    letterSpacing: 2,
-  },
-  ticketId: {
-    fontSize: 14,
-    color: "#888",
-    fontWeight: "600",
-  },
-  block: {
-    marginBottom: 12,
-  },
-  blockLabel: {
-    fontSize: 12,
-    color: "#999",
-    marginBottom: 4,
-    fontWeight: "600",
-  },
-  row: {
-    flexDirection: "row",
-    gap: GAP,
-    marginBottom: GAP,
-  },
-  cell: {
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#FFF8E1",
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
-  },
-  cellFilled: {
-    backgroundColor: "#fff",
-    borderColor: "#E0E0E0",
-  },
-  cellMatched: {
-    backgroundColor: "#4CAF50",
-    borderColor: "#388E3C",
-  },
-  cellTextFilled: {
-    fontSize: 18,
-    color: "#333",
-    fontWeight: "bold",
-  },
-  cellTextMatched: {
-    color: "#fff",
-  },
-  footer: {
-    marginTop: 4,
-    alignItems: "center",
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: "#E0E0E0",
-  },
-  matchCount: {
-    fontSize: 13,
-    color: "#888",
-  },
-});
