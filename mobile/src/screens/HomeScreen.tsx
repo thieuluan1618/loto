@@ -14,6 +14,7 @@ import ConfettiCannon from "react-native-confetti-cannon";
 import { Audio } from "expo-av";
 import { scanTicket, ScanResult, Block } from "../api/client";
 import TicketCard from "../components/TicketCard";
+import { useImageColors } from "../hooks/useImageColors";
 
 const winSound = require("../../assets/sounds/win.mp3");
 
@@ -26,6 +27,7 @@ export default function HomeScreen() {
   const [showConfetti, setShowConfetti] = useState(false);
   const confettiRef = useRef<ConfettiCannon | null>(null);
   const soundRef = useRef<Audio.Sound | null>(null);
+  const ticketColors = useImageColors(imageUri);
 
   useEffect(() => {
     return () => {
@@ -173,7 +175,7 @@ export default function HomeScreen() {
             <View style={styles.previewContainer}>
               <Image source={{ uri: imageUri }} style={styles.preview} />
               <TouchableOpacity
-                style={[styles.scanButton, loading && styles.scanButtonDisabled]}
+                style={[styles.scanButton, { backgroundColor: ticketColors.primary }, loading && { opacity: 0.6 }]}
                 onPress={handleScan}
                 disabled={loading}
               >
@@ -187,7 +189,7 @@ export default function HomeScreen() {
                 <View style={styles.progressContainer}>
                   {scanStages.map((stage, i) => (
                     <View key={i} style={styles.progressStep}>
-                      <View style={[styles.progressDot, i <= scanStage && styles.progressDotActive, i < scanStage && styles.progressDotDone]} />
+                      <View style={[styles.progressDot, i <= scanStage && { backgroundColor: ticketColors.primary }, i < scanStage && styles.progressDotDone]} />
                       <Text style={[styles.progressText, i <= scanStage && styles.progressTextActive]}>
                         {stage}
                       </Text>
@@ -208,6 +210,7 @@ export default function HomeScreen() {
             confidence={result.confidence}
             matched={matched}
             onToggle={handleToggle}
+            colors={ticketColors}
           />
 
           <View style={styles.bottomRow}>
@@ -288,13 +291,9 @@ const styles = StyleSheet.create({
   },
   scanButton: {
     marginTop: 16,
-    backgroundColor: "#2196F3",
     paddingHorizontal: 48,
     paddingVertical: 14,
     borderRadius: 12,
-  },
-  scanButtonDisabled: {
-    backgroundColor: "#90CAF9",
   },
   scanButtonText: {
     color: "#fff",
@@ -347,9 +346,6 @@ const styles = StyleSheet.create({
     height: 10,
     borderRadius: 5,
     backgroundColor: "#ddd",
-  },
-  progressDotActive: {
-    backgroundColor: "#2196F3",
   },
   progressDotDone: {
     backgroundColor: "#4CAF50",

@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet, useWindowDimensions } from "react-native";
 import { Block } from "../api/client";
+import { TicketColors } from "../hooks/useImageColors";
 
 const COLS = 9;
 const GAP = 2;
@@ -15,14 +16,18 @@ function buildGrid(row: number[]): (number | null)[] {
 
 function TicketRow({
   row,
-  cellSize,
+  cellWidth,
+  cellHeight,
   matched,
   onToggle,
+  colors,
 }: {
   row: number[];
-  cellSize: number;
+  cellWidth: number;
+  cellHeight: number;
   matched: Set<number>;
   onToggle: (n: number) => void;
+  colors: TicketColors;
 }) {
   const cells = buildGrid(row);
   return (
@@ -37,7 +42,7 @@ function TicketRow({
               onPress={() => onToggle(n)}
               style={[
                 styles.cell,
-                { width: cellSize, height: cellSize },
+                { width: cellWidth, height: cellHeight },
                 styles.cellFilled,
                 isMatched && styles.cellMatched,
               ]}
@@ -51,7 +56,7 @@ function TicketRow({
         return (
           <View
             key={i}
-            style={[styles.cell, { width: cellSize, height: cellSize }]}
+            style={[styles.cell, { width: cellWidth, height: cellHeight }, { backgroundColor: colors.background }]}
           />
         );
       })}
@@ -62,22 +67,26 @@ function TicketRow({
 function TicketBlock({
   block,
   index,
-  cellSize,
+  cellWidth,
+  cellHeight,
   matched,
   onToggle,
+  colors,
 }: {
   block: Block;
   index: number;
-  cellSize: number;
+  cellWidth: number;
+  cellHeight: number;
   matched: Set<number>;
   onToggle: (n: number) => void;
+  colors: TicketColors;
 }) {
   return (
     <View style={styles.block}>
       <Text style={styles.blockLabel}>Tờ {index + 1}</Text>
-      <TicketRow row={block.row1} cellSize={cellSize} matched={matched} onToggle={onToggle} />
-      <TicketRow row={block.row2} cellSize={cellSize} matched={matched} onToggle={onToggle} />
-      <TicketRow row={block.row3} cellSize={cellSize} matched={matched} onToggle={onToggle} />
+      <TicketRow row={block.row1} cellWidth={cellWidth} cellHeight={cellHeight} matched={matched} onToggle={onToggle} colors={colors} />
+      <TicketRow row={block.row2} cellWidth={cellWidth} cellHeight={cellHeight} matched={matched} onToggle={onToggle} colors={colors} />
+      <TicketRow row={block.row3} cellWidth={cellWidth} cellHeight={cellHeight} matched={matched} onToggle={onToggle} colors={colors} />
     </View>
   );
 }
@@ -88,24 +97,27 @@ export default function TicketCard({
   confidence,
   matched,
   onToggle,
+  colors,
 }: {
   blocks: Block[];
   ticketId?: string;
   confidence: number;
   matched: Set<number>;
   onToggle: (n: number) => void;
+  colors: TicketColors;
 }) {
   const { width } = useWindowDimensions();
   const cardPadding = 16;
   const screenPadding = 20;
-  const cellSize = Math.floor(
+  const cellWidth = Math.floor(
     (width - screenPadding * 2 - cardPadding * 2 - GAP * (COLS - 1)) / COLS
   );
+  const cellHeight = Math.floor(cellWidth * 1.4);
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { borderColor: colors.accent }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>LÔ TÔ</Text>
+        <Text style={[styles.title, { color: colors.primary }]}>LÔ TÔ</Text>
         {ticketId ? <Text style={styles.ticketId}>#{ticketId}</Text> : null}
       </View>
 
@@ -114,9 +126,11 @@ export default function TicketCard({
           key={i}
           block={block}
           index={i}
-          cellSize={cellSize}
+          cellWidth={cellWidth}
+          cellHeight={cellHeight}
           matched={matched}
           onToggle={onToggle}
+          colors={colors}
         />
       ))}
 
@@ -131,7 +145,7 @@ export default function TicketCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#FFFDE7",
+    backgroundColor: "#fff",
     borderRadius: 16,
     padding: 16,
     width: "100%",
@@ -186,15 +200,15 @@ const styles = StyleSheet.create({
     borderColor: "#E0E0E0",
   },
   cellFilled: {
-    backgroundColor: "#FFEB3B",
-    borderColor: "#FBC02D",
+    backgroundColor: "#fff",
+    borderColor: "#E0E0E0",
   },
   cellMatched: {
     backgroundColor: "#4CAF50",
     borderColor: "#388E3C",
   },
   cellTextFilled: {
-    fontSize: 13,
+    fontSize: 18,
     color: "#333",
     fontWeight: "bold",
   },
