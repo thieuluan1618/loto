@@ -65,6 +65,10 @@ function TicketRow({
             style={{
               width: cellWidth,
               height: cellHeight,
+              borderWidth: 1,
+              borderColor: "#F5DEB3",
+              borderRadius: 6,
+              backgroundColor: "#FFF8F0",
             }}
           />
         );

@@ -1,11 +1,9 @@
 import { Platform } from "react-native";
 
-const DEV_HOST = "192.168.2.195";
+const PROD_URL = "https://loto-app.thankfulplant-70f11e56.eastus.azurecontainerapps.io/api/v1";
 
 const getBaseUrl = () => {
-  if (!__DEV__) return "https://your-production-url.com/api/v1";
-  if (Platform.OS === "web") return "http://localhost:8080/api/v1";
-  return `http://${DEV_HOST}:8080/api/v1`;
+  return PROD_URL;
 };
 
 const API_URL = getBaseUrl();

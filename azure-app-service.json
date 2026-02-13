@@ -1,0 +1,237 @@
+{
+  "name": "Loto Backend - Azure App Service Configuration",
+  "description": "Production-ready App Service configuration for Loto lottery ticket scanner backend",
+  "version": "1.0.0",
+  
+  "appServicePlan": {
+    "description": "Linux-based App Service Plan for containerized Go backend",
+    "minimalConfig": {
+      "sku": "B1",
+      "osType": "Linux",
+      "instanceCount": 1,
+      "note": "B1 is suitable for development/staging. For production, consider B2, S1, or P1V2"
+    },
+    "productionConfig": {
+      "sku": "S1",
+      "osType": "Linux",
+      "instanceCount": 2,
+      "autoScaling": {
+        "enabled": true,
+        "minInstances": 2,
+        "maxInstances": 10,
+        "targetCpuPercentage": 70,
+        "targetMemoryPercentage": 80
+      }
+    }
+  },
+
+  "containerSettings": {
+    "imageSource": "Azure Container Registry (ACR)",
+    "imageUri": "{registry}.azurecr.io/loto-server:latest",
+    "continuousDeployment": true,
+    "webhookEnabled": true,
+    "healthCheckPath": "/health",
+    "startupCommand": ""
+  },
+
+  "environmentVariables": {
+    "required": [
+      {
+        "name": "SERVER_PORT",
+        "value": "8080",
+        "description": "Port the server listens on"
+      },
+      {
+        "name": "MAX_UPLOAD_SIZE_MB",
+        "value": "5",
+        "description": "Maximum ticket image size in MB"
+      },
+      {
+        "name": "AI_PROVIDER",
+        "value": "openai",
+        "options": ["openai", "google"],
+        "description": "AI service provider"
+      }
+    ],
+    "openAI": [
+      {
+        "name": "OPENAI_API_KEY",
+        "secret": true,
+        "description": "OpenAI API key"
+      },
+      {
+        "name": "OPENAI_MODEL",
+        "value": "gpt-5.2",
+        "description": "OpenAI model to use"
+      }
+    ],
+    "google": [
+      {
+        "name": "GOOGLE_API_KEY",
+        "secret": true,
+        "description": "Google API key for Gemini"
+      },
+      {
+        "name": "GOOGLE_AI_MODEL",
+        "value": "gemini-2.5-flash",
+        "description": "Google AI model to use"
+      },
+      {
+        "name": "GOOGLE_VISION_ENABLED",
+        "value": "false",
+        "description": "Enable Google Cloud Vision API"
+      }
+    ],
+    "database": [
+      {
+        "name": "DB_HOST",
+        "secret": true,
+        "description": "PostgreSQL host (e.g., server.postgres.database.azure.com)"
+      },
+      {
+        "name": "DB_PORT",
+        "value": "5432",
+        "description": "PostgreSQL port"
+      },
+      {
+        "name": "DB_USER",
+        "secret": true,
+        "description": "Database username"
+      },
+      {
+        "name": "DB_PASSWORD",
+        "secret": true,
+        "description": "Database password"
+      },
+      {
+        "name": "DB_NAME",
+        "value": "loto",
+        "description": "Database name"
+      },
+      {
+        "name": "DB_SSLMODE",
+        "value": "require",
+        "description": "SSL mode for database connection (require for Azure)"
+      }
+    ]
+  },
+
+  "networking": {
+    "httpProtocol": "HTTPS",
+    "tlsMinVersion": "1.2",
+    "corsEnabled": true,
+    "allowedOrigins": [
+      "https://yourmobileapp.com"
+    ]
+  },
+
+  "monitoring": {
+    "applicationInsights": {
+      "enabled": true,
+      "instrumentationKey": "set-via-environment"
+    },
+    "logging": {
+      "enabled": true,
+      "retention": 30,
+      "level": "Information"
+    },
+    "alerts": [
+      {
+        "name": "High HTTP 5xx Errors",
+        "metric": "Http5xx",
+        "threshold": 10,
+        "timeWindow": 5,
+        "severity": "critical"
+      },
+      {
+        "name": "High Response Time",
+        "metric": "ResponseTime",
+        "threshold": 5000,
+        "timeWindow": 5,
+        "severity": "warning"
+      },
+      {
+        "name": "High CPU Usage",
+        "metric": "CpuPercentage",
+        "threshold": 90,
+        "timeWindow": 5,
+        "severity": "warning"
+      }
+    ]
+  },
+
+  "backup": {
+    "enabled": true,
+    "frequency": "daily",
+    "retention": 30,
+    "note": "Backs up app configuration, not data. Database backups are separate."
+  },
+
+  "scaling": {
+    "horizontalScaling": {
+      "enabled": true,
+      "minInstances": 1,
+      "maxInstances": 5,
+      "targetCpuPercentage": 75
+    },
+    "verticalScaling": {
+      "note": "Upgrade SKU from B1 → S1 → S2 → P1V2 as needed"
+    }
+  },
+
+  "security": {
+    "managedIdentity": {
+      "enabled": true,
+      "purpose": "Access to Key Vault and other Azure resources"
+    },
+    "keyVault": {
+      "enabled": true,
+      "purpose": "Store secrets (API keys, DB passwords)"
+    },
+    "networkSecurityGroup": {
+      "enabled": true,
+      "rules": [
+        "Allow HTTPS (443)",
+        "Allow HTTP (80) - redirect to HTTPS",
+        "Deny SSH access"
+      ]
+    }
+  },
+
+  "deployment": {
+    "methods": [
+      "GitHub Actions (recommended)",
+      "Azure CLI",
+      "Docker push to ACR (webhook triggers deployment)",
+      "Azure Portal"
+    ],
+    "rollbackCapability": true,
+    "blueGreenDeployment": "Not built-in - use Deployment Slots"
+  },
+
+  "deploymentSlots": {
+    "staging": {
+      "enabled": true,
+      "purpose": "Test before production",
+      "swapConfig": {
+        "warmupPath": "/health",
+        "timeout": 300
+      }
+    }
+  },
+
+  "costEstimate": {
+    "note": "Approximate monthly costs (USD) for minimum viable setup",
+    "appServicePlan": {
+      "B1": "11.50",
+      "S1": "55.00",
+      "S2": "110.00"
+    },
+    "containerRegistry": {
+      "Basic": "5.00"
+    },
+    "totalMinimum": "~$16.50/month (B1 + Basic ACR)",
+    "withDatabase": "~$40-60/month (add Azure Database for PostgreSQL)",
+    "withApplicationInsights": "~$5-10/month"
+  }
+}

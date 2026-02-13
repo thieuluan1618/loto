@@ -27,10 +27,12 @@ import (
 
 func main() {
 	logCfg := zap.NewProductionConfig()
-	logCfg.OutputPaths = []string{"stdout", "logs/server.log"}
-	logCfg.ErrorOutputPaths = []string{"stderr", "logs/server.log"}
-	os.MkdirAll("logs", 0o755)
-	logger, _ := logCfg.Build()
+	logCfg.OutputPaths = []string{"stdout"}
+	logCfg.ErrorOutputPaths = []string{"stderr"}
+	logger, err := logCfg.Build()
+	if err != nil {
+		panic(err)
+	}
 	defer logger.Sync()
 
 	_ = godotenv.Load()
