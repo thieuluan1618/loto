@@ -1,5 +1,5 @@
 import "./global.css";
-import { StatusBar } from "react-native";
+import { StatusBar, View } from "react-native";
 import { useFonts, RobotoCondensed_700Bold } from "@expo-google-fonts/roboto-condensed";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
@@ -23,9 +23,9 @@ export default function App() {
   }
 
   return (
-    <>
-      <StatusBar barStyle="dark-content" />
+    <View className="flex-1" style={{ backgroundColor: "#F5EDE0" }}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F5EDE0" />
       <HomeScreen />
-    </>
+    </View>
   );
 }

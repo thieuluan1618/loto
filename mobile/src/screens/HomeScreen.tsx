@@ -300,7 +300,7 @@ export default function HomeScreen() {
                   className="mt-4 font-condensed text-4xl"
                   style={{ color: "#8B0000", textShadow: "0px 2px 8px rgba(0,0,0,0.3)" }}
                 >
-                  Quét Vé Số
+                  Quét Lô Tô
                 </Text>
 
                 {!scanned && (
