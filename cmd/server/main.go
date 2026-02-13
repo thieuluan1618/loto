@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -133,8 +134,12 @@ func setupRouter(h *handler.Handler, maxUploadMB int64) *gin.Engine {
 
 	router.MaxMultipartMemory = maxUploadMB << 20
 
+	corsOrigins := []string{"http://localhost:8081", "http://localhost:19006"}
+	if extra := os.Getenv("CORS_ORIGINS"); extra != "" {
+		corsOrigins = append(corsOrigins, strings.Split(extra, ",")...)
+	}
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
+		AllowOrigins:     corsOrigins,
 		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type"},
 		AllowCredentials: false,
