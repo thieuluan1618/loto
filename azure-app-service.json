@@ -48,7 +48,7 @@
       },
       {
         "name": "AI_PROVIDER",
-        "value": "openai",
+        "value": "google",
         "options": ["openai", "google"],
         "description": "AI service provider"
       }

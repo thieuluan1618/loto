@@ -103,9 +103,9 @@ az webapp config appsettings set \
   --settings \
     SERVER_PORT=8080 \
     MAX_UPLOAD_SIZE_MB=5 \
-    AI_PROVIDER=openai \
-    OPENAI_API_KEY="your-openai-key" \
-    OPENAI_MODEL="gpt-5.2" \
+    AI_PROVIDER=google \
+    GOOGLE_API_KEY="your-google-api-key" \
+    GOOGLE_AI_MODEL="gemini-2.5-flash" \
     DB_HOST="your-db-host.postgres.database.azure.com" \
     DB_PORT=5432 \
     DB_USER="your-db-user" \

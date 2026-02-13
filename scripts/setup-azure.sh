@@ -121,7 +121,7 @@ az webapp config appsettings set \
     --settings \
         SERVER_PORT=8080 \
         MAX_UPLOAD_SIZE_MB=5 \
-        AI_PROVIDER=openai \
+        AI_PROVIDER=google \
         WEBSITES_PORT=8080 \
     --output none
 
