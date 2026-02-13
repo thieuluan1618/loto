@@ -5,6 +5,7 @@ bin/
 *.out
 vendor/
 tmp/
+logs/
 .DS_Store
 .idea/
 .vscode/

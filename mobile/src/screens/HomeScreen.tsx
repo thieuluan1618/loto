@@ -344,12 +344,12 @@ export default function HomeScreen() {
                           {loading ? (
                             <ActivityIndicator color="#fff" />
                           ) : (
-                            <div className="px-2 flex gap-2">
+                            <View className="px-2 flex-row gap-2">
                               <Ionicons name="scan" size={24} color="#fff" />
                               <Text className="font-condensed text-xl tracking-wide text-white">
                                 Quét vé số
                               </Text>
-                            </div>
+                            </View>
                           )}
                         </AnimatedButton>
 
