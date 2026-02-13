@@ -42,7 +42,7 @@ function TicketRow({
               onPress={() => onToggle(n)}
               className="items-center justify-center"
               style={{
-                width: cellWidth,
+                flex: 1,
                 height: cellHeight,
                 backgroundColor: isMatched ? "#E53935" : "#fff",
                 borderWidth: 2,
@@ -63,7 +63,7 @@ function TicketRow({
           <View
             key={i}
             style={{
-              width: cellWidth,
+              flex: 1,
               height: cellHeight,
               borderWidth: 1,
               borderColor: "#F5DEB3",

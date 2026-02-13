@@ -73,6 +73,7 @@ const shadow = (color: string, radius: number): ViewStyle =>
     : { elevation: radius };
 
 const winSound = require("../../assets/sounds/win.mp3");
+const tapSound = require("../../assets/sounds/tap.wav");
 const horseBg = require("../../assets/horse-bg.jpg");
 
 export default function HomeScreen() {
@@ -82,24 +83,38 @@ export default function HomeScreen() {
   const [result, setResult] = useState<ScanResult | null>(null);
   const [matched, setMatched] = useState<Set<number>>(new Set());
   const [showConfetti, setShowConfetti] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
   const confettiRef = useRef<ConfettiCannon | null>(null);
   const soundRef = useRef<Audio.Sound | null>(null);
+  const tapSoundRef = useRef<Audio.Sound | null>(null);
   const ticketColors = useImageColors(imageUri);
   const { height: windowHeight } = useWindowDimensions();
 
   useEffect(() => {
+    Audio.Sound.createAsync(tapSound).then(({ sound }) => {
+      tapSoundRef.current = sound;
+    }).catch(() => {});
     return () => {
       soundRef.current?.unloadAsync();
+      tapSoundRef.current?.unloadAsync();
     };
   }, []);
 
   const playWinSound = useCallback(async () => {
+    if (!soundEnabled) return;
     try {
       const { sound } = await Audio.Sound.createAsync(winSound);
       soundRef.current = sound;
       await sound.playAsync();
     } catch {}
-  }, []);
+  }, [soundEnabled]);
+
+  const playTapSound = useCallback(async () => {
+    if (!soundEnabled || !tapSoundRef.current) return;
+    try {
+      await tapSoundRef.current.replayAsync();
+    } catch {}
+  }, [soundEnabled]);
 
   const scanned = result && result.blocks && result.blocks.length > 0;
 
@@ -172,7 +187,14 @@ export default function HomeScreen() {
     ];
     try {
       const res = await scanTicket(imageUri);
-      setResult(res);
+      if (res.status === "rejected") {
+        Alert.alert(
+          "Không nhận diện được",
+          "Ảnh không rõ hoặc không phải vé lô tô. Vui lòng chụp lại.",
+        );
+      } else {
+        setResult(res);
+      }
     } catch (err) {
       Alert.alert(
         "Lỗi",
@@ -186,6 +208,7 @@ export default function HomeScreen() {
   };
 
   const handleToggle = (n: number) => {
+    playTapSound();
     setMatched((prev) => {
       const next = new Set(prev);
       if (next.has(n)) {
@@ -260,6 +283,17 @@ export default function HomeScreen() {
               className="absolute inset-0"
               style={{ backgroundColor: "rgba(0,0,0,0.45)" }}
             />
+            <Pressable
+              onPress={() => setSoundEnabled((v) => !v)}
+              className="absolute right-4 top-12 z-20 items-center justify-center rounded-full p-2.5"
+              style={{ backgroundColor: "rgba(0,0,0,0.4)" }}
+            >
+              <Ionicons
+                name={soundEnabled ? "volume-high" : "volume-mute"}
+                size={22}
+                color="#FFD54F"
+              />
+            </Pressable>
             <View className="z-10 flex-1 w-full items-center justify-center">
               <View className="w-full max-w-md items-center px-0">
                 <Text
