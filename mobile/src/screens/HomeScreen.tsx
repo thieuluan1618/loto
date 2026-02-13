@@ -74,7 +74,7 @@ const shadow = (color: string, radius: number): ViewStyle =>
 
 const winSound = require("../../assets/sounds/win.mp3");
 const tapSound = require("../../assets/sounds/tap.wav");
-const horseBg = require("../../assets/horse-bg.jpg");
+const horseBg = require("../../assets/horse.png");
 
 export default function HomeScreen() {
   const [imageUri, setImageUri] = useState<string | null>(null);
@@ -260,7 +260,7 @@ export default function HomeScreen() {
 
   return (
     <>
-      <View className="flex-1" style={{ backgroundColor: "#B71C1C", height: windowHeight, maxHeight: windowHeight, overflow: "hidden" }}>
+      <View className="flex-1" style={{ backgroundColor: "#F5EDE0" }}>
         <ScrollView
           contentContainerStyle={{
             flexGrow: 1,
@@ -275,30 +275,30 @@ export default function HomeScreen() {
             style={{
               width: "100%",
               maxWidth: 480,
-              height: windowHeight,
+              minHeight: windowHeight,
               alignSelf: "center",
             }}
           >
             <View
               className="absolute inset-0"
-              style={{ backgroundColor: "rgba(0,0,0,0.45)" }}
+              style={{ backgroundColor: "rgba(245,237,224,0.55)" }}
             />
             <Pressable
               onPress={() => setSoundEnabled((v) => !v)}
               className="absolute right-4 top-12 z-20 items-center justify-center rounded-full p-2.5"
-              style={{ backgroundColor: "rgba(0,0,0,0.4)" }}
+              style={{ backgroundColor: "rgba(0,0,0,0.25)" }}
             >
               <Ionicons
                 name={soundEnabled ? "volume-high" : "volume-mute"}
                 size={22}
-                color="#FFD54F"
+                color="#fff"
               />
             </Pressable>
             <View className="z-10 flex-1 w-full items-center justify-center">
               <View className="w-full max-w-md items-center px-0">
                 <Text
                   className="mt-4 font-condensed text-4xl"
-                  style={{ color: "#FFD54F", textShadow: "0px 2px 6px rgba(0,0,0,0.7)" }}
+                  style={{ color: "#8B0000", textShadow: "0px 2px 8px rgba(0,0,0,0.3)" }}
                 >
                   Quét Vé Số
                 </Text>
@@ -307,44 +307,44 @@ export default function HomeScreen() {
                   <>
                     <Text
                       className="mt-1 mb-6 text-sm font-semibold"
-                      style={{ color: "#FFF8E1", textShadow: "0px 1px 4px rgba(0,0,0,0.6)" }}
+                      style={{ color: "#3E2723", textShadow: "0px 1px 3px rgba(0,0,0,0.2)" }}
                     >
                       Chụp hoặc chọn ảnh vé số để bắt đầu
                     </Text>
 
-                    <View className="w-full gap-4">
+                    <View className="w-full gap-3">
                       <AnimatedButton
-                        className="w-full flex-row items-center justify-center gap-3 rounded-2xl py-4"
+                        className="w-full flex-row items-center justify-center gap-2 rounded-xl py-2.5"
                         style={{
-                          backgroundColor: "#FFD54F",
-                          borderWidth: 3,
-                          borderColor: "#E65100",
-                          borderRadius: 16,
+                          backgroundColor: "#8B0000",
+                          borderWidth: 2,
+                          borderColor: "#5C0000",
+                          borderRadius: 12,
                         }}
                         onPress={takePhoto}
                       >
-                        <Ionicons name="camera" size={24} color="#5D2E1A" />
+                        <Ionicons name="camera" size={20} color="#fff" />
                         <Text
-                          className="font-condensed text-xl"
-                          style={{ color: "#5D2E1A" }}
+                          className="font-condensed text-lg"
+                          style={{ color: "#fff" }}
                         >
                           Chụp ảnh
                         </Text>
                       </AnimatedButton>
                       <AnimatedButton
-                        className="w-full flex-row items-center justify-center gap-3 rounded-2xl py-4"
+                        className="w-full flex-row items-center justify-center gap-2 rounded-xl py-2.5"
                         style={{
-                          backgroundColor: "#FFD54F",
-                          borderWidth: 3,
-                          borderColor: "#E65100",
-                          borderRadius: 16,
+                          backgroundColor: "#8B0000",
+                          borderWidth: 2,
+                          borderColor: "#5C0000",
+                          borderRadius: 12,
                         }}
                         onPress={pickImage}
                       >
-                        <Ionicons name="images" size={24} color="#5D2E1A" />
+                        <Ionicons name="images" size={20} color="#fff" />
                         <Text
-                          className="font-condensed text-xl"
-                          style={{ color: "#5D2E1A" }}
+                          className="font-condensed text-lg"
+                          style={{ color: "#fff" }}
                         >
                           Chọn ảnh
                         </Text>
