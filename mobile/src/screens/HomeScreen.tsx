@@ -88,7 +88,8 @@ export default function HomeScreen() {
   const soundRef = useRef<Audio.Sound | null>(null);
   const tapSoundRef = useRef<Audio.Sound | null>(null);
   const ticketColors = useImageColors(imageUri);
-  const { height: windowHeight } = useWindowDimensions();
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const isTablet = windowWidth >= 768;
 
   useEffect(() => {
     Audio.Sound.createAsync(tapSound).then(({ sound }) => {
@@ -274,7 +275,7 @@ export default function HomeScreen() {
             resizeMode="cover"
             style={{
               width: "100%",
-              maxWidth: 480,
+              maxWidth: isTablet ? 720 : 480,
               minHeight: windowHeight,
               alignSelf: "center",
             }}
@@ -295,10 +296,10 @@ export default function HomeScreen() {
               />
             </Pressable>
             <View className="z-10 flex-1 w-full items-center justify-center">
-              <View className="w-full max-w-md items-center px-0">
+              <View className="w-full items-center px-0" style={{ maxWidth: isTablet ? 600 : 448 }}>
                 <Text
-                  className="mt-4 font-condensed text-4xl"
-                  style={{ color: "#8B0000", textShadow: "0px 2px 8px rgba(0,0,0,0.3)" }}
+                  className="mt-4 font-condensed"
+                  style={{ color: "#8B0000", textShadow: "0px 2px 8px rgba(0,0,0,0.3)", fontSize: isTablet ? 48 : 36 }}
                 >
                   Quét Lô Tô
                 </Text>

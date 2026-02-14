@@ -52,7 +52,7 @@ function TicketRow({
             >
               <Text
                 className="font-condensed"
-                style={{ color: isMatched ? "#fff" : "#333", fontSize: Math.min(18, cellHeight * 0.45) }}
+                style={{ color: isMatched ? "#fff" : "#333", fontSize: Math.min(cellWidth >= 50 ? 24 : 18, cellHeight * 0.45) }}
               >
                 {n}
               </Text>
@@ -122,7 +122,8 @@ export default function TicketCard({
   colors: TicketColors;
 }) {
   const { width, height } = useWindowDimensions();
-  const maxWidth = 448;
+  const isTablet = width >= 768;
+  const maxWidth = isTablet ? 600 : 448;
   const containerWidth = Math.min(width, maxWidth);
   const cardPadding = 16;
   const screenPadding = 20;
