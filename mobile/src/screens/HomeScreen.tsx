@@ -89,7 +89,8 @@ export default function HomeScreen() {
   const tapSoundRef = useRef<Audio.Sound | null>(null);
   const ticketColors = useImageColors(imageUri);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
-  const isTablet = windowWidth >= 768;
+  const isLandscape = windowWidth > windowHeight;
+  const isTablet = windowWidth >= 768 && !isLandscape;
 
   useEffect(() => {
     Audio.Sound.createAsync(tapSound)
@@ -281,7 +282,7 @@ export default function HomeScreen() {
             resizeMode="cover"
             style={{
               width: "100%",
-              maxWidth: isTablet ? 720 : 480,
+              maxWidth: isLandscape ? windowWidth : isTablet ? 720 : 480,
               minHeight: windowHeight,
               alignSelf: "center",
             }}
@@ -304,21 +305,181 @@ export default function HomeScreen() {
             <View className="z-10 flex-1 w-full items-center justify-center">
               <View
                 className="w-full items-center px-0"
-                style={{ maxWidth: isTablet ? 600 : 448 }}
+                style={{
+                  maxWidth: isLandscape
+                    ? windowWidth - 40
+                    : isTablet
+                      ? 600
+                      : 448,
+                }}
               >
-                <Text
-                  className="mt-4 font-condensed"
-                  style={{
-                    color: "#8B0000",
-                    textShadow: "0px 2px 8px rgba(0,0,0,0.3)",
-                    fontSize: isTablet ? 48 : 36,
-                  }}
-                >
-                  Quét Lô Tô
-                </Text>
-
-                {!scanned && (
+                {/* ── Pre-scan: Landscape ── */}
+                {!scanned && isLandscape && (
                   <>
+                    <View className="w-full flex-row items-center justify-between px-4 mt-1">
+                      <View className="flex-1">
+                        <Text
+                          className="font-condensed"
+                          style={{
+                            color: "#8B0000",
+                            textShadow: "0px 2px 8px rgba(0,0,0,0.3)",
+                            fontSize: 24,
+                          }}
+                        >
+                          Quét Lô Tô
+                        </Text>
+                        <Text
+                          className="mt-1 text-sm font-semibold"
+                          style={{
+                            color: "#3E2723",
+                            textShadow: "0px 1px 3px rgba(0,0,0,0.2)",
+                          }}
+                        >
+                          Chụp hoặc chọn ảnh vé số để bắt đầu
+                        </Text>
+                      </View>
+                      <View className="flex-row items-center gap-3">
+                        <AnimatedButton
+                          className="flex-row items-center justify-center gap-2 rounded-xl px-5 py-2.5"
+                          style={{
+                            backgroundColor: "#8B0000",
+                            borderWidth: 2,
+                            borderColor: "#5C0000",
+                            borderRadius: 12,
+                          }}
+                          onPress={takePhoto}
+                        >
+                          <Ionicons name="camera" size={20} color="#fff" />
+                          <Text
+                            className="font-condensed text-lg"
+                            style={{ color: "#fff" }}
+                          >
+                            Chụp ảnh
+                          </Text>
+                        </AnimatedButton>
+                        <AnimatedButton
+                          className="flex-row items-center justify-center gap-2 rounded-xl px-5 py-2.5"
+                          style={{
+                            backgroundColor: "#8B0000",
+                            borderWidth: 2,
+                            borderColor: "#5C0000",
+                            borderRadius: 12,
+                          }}
+                          onPress={pickImage}
+                        >
+                          <Ionicons name="images" size={20} color="#fff" />
+                          <Text
+                            className="font-condensed text-lg"
+                            style={{ color: "#fff" }}
+                          >
+                            Chọn ảnh
+                          </Text>
+                        </AnimatedButton>
+                      </View>
+                    </View>
+
+                    {imageUri && (
+                      <View className="mt-4 w-full flex-row items-start gap-4 px-4">
+                        <View
+                          className="flex-1 items-center rounded-2xl p-2"
+                          style={{ backgroundColor: "rgba(255,255,255,0.08)" }}
+                        >
+                          <Image
+                            source={{ uri: imageUri }}
+                            style={{
+                              width: "100%",
+                              height: windowHeight * 0.5,
+                            }}
+                            className="rounded-xl"
+                            resizeMode="contain"
+                          />
+                        </View>
+                        <View
+                          className="items-center justify-center gap-3"
+                          style={{ width: 180 }}
+                        >
+                          <AnimatedButton
+                            className="w-full flex-row items-center justify-center gap-3 rounded-2xl py-3"
+                            style={{
+                              backgroundColor: "#E53935",
+                              borderWidth: 3,
+                              borderColor: "#7f1d1d",
+                              borderRadius: 16,
+                              opacity: loading ? 0.6 : 1,
+                            }}
+                            onPress={handleScan}
+                            disabled={loading}
+                          >
+                            {loading ? (
+                              <ActivityIndicator color="#fff" />
+                            ) : (
+                              <View className="px-2 flex-row gap-2">
+                                <Ionicons name="scan" size={22} color="#fff" />
+                                <Text className="font-condensed text-lg tracking-wide text-white">
+                                  Quét vé số
+                                </Text>
+                              </View>
+                            )}
+                          </AnimatedButton>
+
+                          {loading && (
+                            <View
+                              className="w-full gap-2 rounded-2xl p-3"
+                              style={{ backgroundColor: "rgba(0,0,0,0.3)" }}
+                            >
+                              {scanStages.map((stage, i) => (
+                                <View
+                                  key={i}
+                                  className="flex-row items-center gap-2"
+                                >
+                                  <View
+                                    className="h-2.5 w-2.5 rounded-full"
+                                    style={{
+                                      backgroundColor:
+                                        i < scanStage
+                                          ? "#FFCC80"
+                                          : i <= scanStage
+                                            ? ticketColors.primary
+                                            : "rgba(255,255,255,0.25)",
+                                    }}
+                                  />
+                                  <Text
+                                    className="text-xs"
+                                    style={{
+                                      color:
+                                        i <= scanStage
+                                          ? "#FFCC80"
+                                          : "rgba(255,255,255,0.4)",
+                                      fontWeight:
+                                        i <= scanStage ? "600" : "normal",
+                                    }}
+                                  >
+                                    {stage}
+                                  </Text>
+                                </View>
+                              ))}
+                            </View>
+                          )}
+                        </View>
+                      </View>
+                    )}
+                  </>
+                )}
+
+                {/* ── Pre-scan: Portrait / tablet ── */}
+                {!scanned && !isLandscape && (
+                  <>
+                    <Text
+                      className="mt-4 font-condensed"
+                      style={{
+                        color: "#8B0000",
+                        textShadow: "0px 2px 8px rgba(0,0,0,0.3)",
+                        fontSize: isTablet ? 48 : 36,
+                      }}
+                    >
+                      Quét Lô Tô
+                    </Text>
+
                     <Text
                       className="mt-1 mb-6 text-sm font-semibold"
                       style={{
@@ -376,11 +537,14 @@ export default function HomeScreen() {
                       <View className="mt-6 w-full items-center">
                         <View
                           className="w-full items-center rounded-2xl p-3"
-                          style={{ backgroundColor: "rgba(255,255,255,0.08)" }}
+                          style={{
+                            backgroundColor: "rgba(255,255,255,0.08)",
+                          }}
                         >
                           <Image
                             source={{ uri: imageUri }}
-                            className="h-96 w-full rounded-xl"
+                            className="w-full rounded-xl"
+                            style={{ height: windowHeight * 0.35 }}
                             resizeMode="contain"
                           />
                         </View>
@@ -451,8 +615,22 @@ export default function HomeScreen() {
                   </>
                 )}
 
-                {scanned && result && (
-                  <View className="mt-4 w-full items-center">
+                {/* ── Scanned result ── */}
+                {scanned && result && isLandscape && (
+                  <View className="w-full flex-row items-center justify-center gap-4 mt-1 px-2">
+                    <View className="items-center justify-center">
+                      <Text
+                        className="font-condensed"
+                        style={{
+                          color: "#8B0000",
+                          textShadow: "0px 2px 8px rgba(0,0,0,0.3)",
+                          fontSize: 20,
+                        }}
+                      >
+                        Quét Lô Tô
+                      </Text>
+                    </View>
+
                     <TicketCard
                       blocks={result.blocks!}
                       ticketId={result.ticket_id}
@@ -460,6 +638,72 @@ export default function HomeScreen() {
                       matched={matched}
                       onToggle={handleToggle}
                       colors={ticketColors}
+                      isLandscape={isLandscape}
+                    />
+
+                    <View className="items-center gap-3">
+                      {matched.size > 0 && (
+                        <AnimatedButton
+                          className="flex-row items-center gap-2 rounded-full px-4 py-1.5"
+                          style={{
+                            backgroundColor: "#FFD54F",
+                            borderWidth: 2,
+                            borderColor: "#E65100",
+                          }}
+                          onPress={confirmClear}
+                        >
+                          <Ionicons name="refresh" size={14} color="#5D2E1A" />
+                          <Text
+                            className="text-xs font-bold"
+                            style={{ color: "#5D2E1A" }}
+                          >
+                            Xoá tất cả
+                          </Text>
+                        </AnimatedButton>
+                      )}
+                      <AnimatedButton
+                        className="flex-row items-center gap-2 rounded-full px-4 py-1.5"
+                        style={{
+                          backgroundColor: "#E53935",
+                          borderWidth: 2,
+                          borderColor: "#7f1d1d",
+                        }}
+                        onPress={confirmRescan}
+                      >
+                        <Ionicons
+                          name="camera-reverse"
+                          size={14}
+                          color="#fff"
+                        />
+                        <Text className="text-xs font-bold text-white">
+                          Quét vé khác
+                        </Text>
+                      </AnimatedButton>
+                    </View>
+                  </View>
+                )}
+
+                {scanned && result && !isLandscape && (
+                  <View className="w-full items-center mt-4">
+                    <Text
+                      className="mb-2 font-condensed"
+                      style={{
+                        color: "#8B0000",
+                        textShadow: "0px 2px 8px rgba(0,0,0,0.3)",
+                        fontSize: isTablet ? 48 : 36,
+                      }}
+                    >
+                      Quét Lô Tô
+                    </Text>
+
+                    <TicketCard
+                      blocks={result.blocks!}
+                      ticketId={result.ticket_id}
+                      confidence={result.confidence}
+                      matched={matched}
+                      onToggle={handleToggle}
+                      colors={ticketColors}
+                      isLandscape={isLandscape}
                     />
 
                     <View className="mt-3 flex-row items-center gap-3">

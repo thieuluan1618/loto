@@ -52,7 +52,13 @@ function TicketRow({
             >
               <Text
                 className="font-condensed"
-                style={{ color: isMatched ? "#fff" : "#333", fontSize: Math.min(cellWidth >= 50 ? 24 : 18, cellHeight * 0.45) }}
+                style={{
+                  color: isMatched ? "#fff" : "#333",
+                  fontSize: Math.min(
+                    cellWidth >= 50 ? 24 : 18,
+                    cellHeight * 0.45,
+                  ),
+                }}
               >
                 {n}
               </Text>
@@ -99,9 +105,30 @@ function TicketBlock({
       <Text className="mb-0.5 text-xs font-bold text-tet-red">
         # {index + 1}
       </Text>
-      <TicketRow row={block.row1} cellWidth={cellWidth} cellHeight={cellHeight} matched={matched} onToggle={onToggle} colors={colors} />
-      <TicketRow row={block.row2} cellWidth={cellWidth} cellHeight={cellHeight} matched={matched} onToggle={onToggle} colors={colors} />
-      <TicketRow row={block.row3} cellWidth={cellWidth} cellHeight={cellHeight} matched={matched} onToggle={onToggle} colors={colors} />
+      <TicketRow
+        row={block.row1}
+        cellWidth={cellWidth}
+        cellHeight={cellHeight}
+        matched={matched}
+        onToggle={onToggle}
+        colors={colors}
+      />
+      <TicketRow
+        row={block.row2}
+        cellWidth={cellWidth}
+        cellHeight={cellHeight}
+        matched={matched}
+        onToggle={onToggle}
+        colors={colors}
+      />
+      <TicketRow
+        row={block.row3}
+        cellWidth={cellWidth}
+        cellHeight={cellHeight}
+        matched={matched}
+        onToggle={onToggle}
+        colors={colors}
+      />
     </View>
   );
 }
@@ -113,6 +140,7 @@ export default function TicketCard({
   matched,
   onToggle,
   colors,
+  isLandscape = false,
 }: {
   blocks: Block[];
   ticketId?: string;
@@ -120,38 +148,51 @@ export default function TicketCard({
   matched: Set<number>;
   onToggle: (n: number) => void;
   colors: TicketColors;
+  isLandscape?: boolean;
 }) {
   const { width, height } = useWindowDimensions();
-  const isTablet = width >= 768;
-  const maxWidth = isTablet ? 600 : 448;
+  const isTablet = width >= 768 && !isLandscape;
+  const maxWidth = isLandscape ? height * 0.75 : isTablet ? 600 : 448;
   const containerWidth = Math.min(width, maxWidth);
-  const cardPadding = 16;
-  const screenPadding = 20;
+  const cardPadding = isLandscape ? 8 : 16;
+  const screenPadding = isLandscape ? 8 : 20;
   const cellWidth = Math.floor(
-    (containerWidth - screenPadding * 2 - cardPadding * 2 - GAP * (COLS - 1)) / COLS
+    (containerWidth - screenPadding * 2 - cardPadding * 2 - GAP * (COLS - 1)) /
+      COLS,
   );
   const totalRows = blocks.length * 3;
-  const availableHeight = height - CARD_CHROME;
-  const maxCellHeight = Math.floor((availableHeight - GAP * totalRows) / totalRows);
+  const blockLabels = blocks.length * 18;
+  const cardChrome = isLandscape ? 90 + blockLabels : CARD_CHROME;
+  const availableHeight = height - cardChrome;
+  const maxCellHeight = Math.floor(
+    (availableHeight - GAP * totalRows) / totalRows,
+  );
   const cellHeight = Math.min(Math.floor(cellWidth * 1.2), maxCellHeight);
 
   return (
     <View
-      className="w-full rounded-2xl bg-tet-cream p-3"
-      style={{ borderWidth: 3, borderColor: "#E65100", borderRadius: 16 }}
+      className={`rounded-2xl bg-tet-cream ${isLandscape ? "p-2" : "w-full p-3"}`}
+      style={{
+        borderWidth: 3,
+        borderColor: "#E65100",
+        borderRadius: 16,
+        ...(isLandscape ? { width: containerWidth } : {}),
+      }}
     >
       <View
-        className="mb-2 flex-row items-center justify-between pb-1.5"
+        className={`flex-row items-center justify-between ${isLandscape ? "mb-1 pb-1" : "mb-2 pb-1.5"}`}
         style={{ borderBottomWidth: 2, borderBottomColor: "#FFB74D" }}
       >
         <Text
-          className="font-condensed text-xl tracking-wider"
+          className={`font-condensed tracking-wider ${isLandscape ? "text-base" : "text-xl"}`}
           style={{ color: colors.primary }}
         >
           🧧 LÔ TÔ 🧧
         </Text>
         {ticketId ? (
-          <Text className="text-sm font-semibold text-gray-500">
+          <Text
+            className={`font-semibold text-gray-500 ${isLandscape ? "text-xs" : "text-sm"}`}
+          >
             #{ticketId}
           </Text>
         ) : null}
@@ -171,10 +212,12 @@ export default function TicketCard({
       ))}
 
       <View
-        className="mt-1 items-center pt-2"
+        className={`items-center ${isLandscape ? "mt-0.5 pt-1" : "mt-1 pt-2"}`}
         style={{ borderTopWidth: 2, borderTopColor: "#FFB74D" }}
       >
-        <Text className="text-sm font-semibold text-tet-red">
+        <Text
+          className={`font-semibold text-tet-red ${isLandscape ? "text-xs" : "text-sm"}`}
+        >
           {matched.size > 0
             ? `🎯 Đã đánh: ${matched.size} số`
             : "Nhấn vào số để đánh 🎲"}
