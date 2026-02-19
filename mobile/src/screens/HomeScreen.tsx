@@ -92,9 +92,11 @@ export default function HomeScreen() {
   const isTablet = windowWidth >= 768;
 
   useEffect(() => {
-    Audio.Sound.createAsync(tapSound).then(({ sound }) => {
-      tapSoundRef.current = sound;
-    }).catch(() => {});
+    Audio.Sound.createAsync(tapSound)
+      .then(({ sound }) => {
+        tapSoundRef.current = sound;
+      })
+      .catch(() => {});
     return () => {
       soundRef.current?.unloadAsync();
       tapSoundRef.current?.unloadAsync();
@@ -252,11 +254,15 @@ export default function HomeScreen() {
       setImageUri(null);
       return;
     }
-    confirm("Quét vé khác?", `Bạn đã đánh ${matched.size} số. Thoát sẽ mất dữ liệu.`, () => {
-      setResult(null);
-      setImageUri(null);
-      setMatched(new Set());
-    });
+    confirm(
+      "Quét vé khác?",
+      `Bạn đã đánh ${matched.size} số. Thoát sẽ mất dữ liệu.`,
+      () => {
+        setResult(null);
+        setImageUri(null);
+        setMatched(new Set());
+      },
+    );
   };
 
   return (
@@ -296,10 +302,17 @@ export default function HomeScreen() {
               />
             </Pressable>
             <View className="z-10 flex-1 w-full items-center justify-center">
-              <View className="w-full items-center px-0" style={{ maxWidth: isTablet ? 600 : 448 }}>
+              <View
+                className="w-full items-center px-0"
+                style={{ maxWidth: isTablet ? 600 : 448 }}
+              >
                 <Text
                   className="mt-4 font-condensed"
-                  style={{ color: "#8B0000", textShadow: "0px 2px 8px rgba(0,0,0,0.3)", fontSize: isTablet ? 48 : 36 }}
+                  style={{
+                    color: "#8B0000",
+                    textShadow: "0px 2px 8px rgba(0,0,0,0.3)",
+                    fontSize: isTablet ? 48 : 36,
+                  }}
                 >
                   Quét Lô Tô
                 </Text>
@@ -308,48 +321,55 @@ export default function HomeScreen() {
                   <>
                     <Text
                       className="mt-1 mb-6 text-sm font-semibold"
-                      style={{ color: "#3E2723", textShadow: "0px 1px 3px rgba(0,0,0,0.2)" }}
+                      style={{
+                        color: "#3E2723",
+                        textShadow: "0px 1px 3px rgba(0,0,0,0.2)",
+                      }}
                     >
                       Chụp hoặc chọn ảnh vé số để bắt đầu
                     </Text>
 
-                    <View className="w-full gap-3">
-                      <AnimatedButton
-                        className="w-full flex-row items-center justify-center gap-2 rounded-xl py-2.5"
-                        style={{
-                          backgroundColor: "#8B0000",
-                          borderWidth: 2,
-                          borderColor: "#5C0000",
-                          borderRadius: 12,
-                        }}
-                        onPress={takePhoto}
-                      >
-                        <Ionicons name="camera" size={20} color="#fff" />
-                        <Text
-                          className="font-condensed text-lg"
-                          style={{ color: "#fff" }}
+                    <View className="flex-row items-center justify-center gap-3 px-4 w-full">
+                      <View className="flex-1">
+                        <AnimatedButton
+                          className="flex-row items-center justify-center gap-2 rounded-xl py-2.5"
+                          style={{
+                            backgroundColor: "#8B0000",
+                            borderWidth: 2,
+                            borderColor: "#5C0000",
+                            borderRadius: 12,
+                          }}
+                          onPress={takePhoto}
                         >
-                          Chụp ảnh
-                        </Text>
-                      </AnimatedButton>
-                      <AnimatedButton
-                        className="w-full flex-row items-center justify-center gap-2 rounded-xl py-2.5"
-                        style={{
-                          backgroundColor: "#8B0000",
-                          borderWidth: 2,
-                          borderColor: "#5C0000",
-                          borderRadius: 12,
-                        }}
-                        onPress={pickImage}
-                      >
-                        <Ionicons name="images" size={20} color="#fff" />
-                        <Text
-                          className="font-condensed text-lg"
-                          style={{ color: "#fff" }}
+                          <Ionicons name="camera" size={20} color="#fff" />
+                          <Text
+                            className="font-condensed text-lg"
+                            style={{ color: "#fff" }}
+                          >
+                            Chụp ảnh
+                          </Text>
+                        </AnimatedButton>
+                      </View>
+                      <View className="flex-1">
+                        <AnimatedButton
+                          className="flex-row items-center justify-center gap-2 rounded-xl py-2.5"
+                          style={{
+                            backgroundColor: "#8B0000",
+                            borderWidth: 2,
+                            borderColor: "#5C0000",
+                            borderRadius: 12,
+                          }}
+                          onPress={pickImage}
                         >
-                          Chọn ảnh
-                        </Text>
-                      </AnimatedButton>
+                          <Ionicons name="images" size={20} color="#fff" />
+                          <Text
+                            className="font-condensed text-lg"
+                            style={{ color: "#fff" }}
+                          >
+                            Chọn ảnh
+                          </Text>
+                        </AnimatedButton>
+                      </View>
                     </View>
 
                     {imageUri && (
@@ -365,7 +385,7 @@ export default function HomeScreen() {
                           />
                         </View>
                         <AnimatedButton
-                          className="mt-5 w-full flex-row items-center justify-center gap-3 rounded-2xl py-4"
+                          className="mt-5 self-center flex-row items-center justify-center gap-3 rounded-2xl px-10 py-4"
                           style={{
                             backgroundColor: "#E53935",
                             borderWidth: 3,
@@ -454,7 +474,10 @@ export default function HomeScreen() {
                           onPress={confirmClear}
                         >
                           <Ionicons name="refresh" size={16} color="#5D2E1A" />
-                          <Text className="text-sm font-bold" style={{ color: "#5D2E1A" }}>
+                          <Text
+                            className="text-sm font-bold"
+                            style={{ color: "#5D2E1A" }}
+                          >
                             Xoá tất cả
                           </Text>
                         </AnimatedButton>
@@ -468,7 +491,11 @@ export default function HomeScreen() {
                         }}
                         onPress={confirmRescan}
                       >
-                        <Ionicons name="camera-reverse" size={16} color="#fff" />
+                        <Ionicons
+                          name="camera-reverse"
+                          size={16}
+                          color="#fff"
+                        />
                         <Text className="text-sm font-bold text-white">
                           Quét vé khác
                         </Text>
